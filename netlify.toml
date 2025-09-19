@@ -1,0 +1,14 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+[functions]
+  # This is where serverless functions will be served
+  directory = ".netlify/functions"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
