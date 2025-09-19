@@ -10,7 +10,8 @@ node_modules
 .env.local
 .env.development.local
 .env.test.local
-.env.production.local
+# Include .env.production for deployment
+# .env.production.local
 
 # Debug logs
 npm-debug.log*

@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "public": false,
+  "build": {
+    "env": {
+      "OPENAI_API_KEY": "dummy-key-for-build-only",
+      "OPENAI_MODEL": "gpt-4",
+      "USE_AZURE_OPENAI": "false",
+      "MAX_TOKENS": "500",
+      "TEMPERATURE": "0.3"
+    }
+  }
+}

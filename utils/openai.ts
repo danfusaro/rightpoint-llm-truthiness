@@ -9,10 +9,24 @@ const azureDeploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o"
 const azureApiVersion = process.env.AZURE_OPENAI_API_VERSION || "2025-01-01-preview";
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
+// Check if we're in a vercel build environment with dummy keys
+const isDummyKey = openaiApiKey === "dummy-key-for-build-only" || 
+                  (useAzureOpenAI && azureApiKey === "dummy-key-for-build-only");
+
+// Check if we're in a production environment
+const isProduction = process.env.NODE_ENV === "production";
+
 // Configure OpenAI client based on environment settings
 let openai: OpenAI;
 
-if (useAzureOpenAI && azureApiKey && azureEndpoint) {
+// In production with dummy keys, initialize with placeholder config
+if (isProduction && isDummyKey) {
+  console.log("Production build with dummy keys - initializing placeholder client");
+  openai = new OpenAI({
+    apiKey: "dummy-placeholder-key",
+    baseURL: "https://api.openai.com/v1"
+  });
+} else if (useAzureOpenAI && azureApiKey && azureEndpoint) {
   // For Azure OpenAI, we should use the specific configuration
   // Parse the base domain from the endpoint URL - we just want the hostname part
   const domain = new URL(azureEndpoint).hostname;
@@ -67,8 +81,16 @@ export async function queryLLM(question: string, source?: string) {
     hasAzureKey: !!azureApiKey,
     hasAzureEndpoint: !!azureEndpoint,
     azureEndpoint,
-    azureDeploymentName
+    azureDeploymentName,
+    isProduction,
+    isDummyKey
   });
+  
+  // If we're in production with dummy keys, use the fallback response
+  if (isProduction && isDummyKey) {
+    console.log('Using fallback response due to dummy keys in production');
+    return getOfflineResponse(question, !!source);
+  }
   
   let retries = 0;
 
