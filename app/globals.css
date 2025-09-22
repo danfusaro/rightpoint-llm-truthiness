@@ -3,31 +3,73 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
+  /* Light mode colors */
+  --foreground-rgb: 33, 33, 33;
+  /* dark gray for readability */
+  --background-start-rgb: 245, 247, 250;
+  /* light bluish-gray */
   --background-end-rgb: 255, 255, 255;
+  /* white */
+  --accent-rgb: 59, 130, 246;
+  /* vibrant blue for highlights */
+  --muted-rgb: 107, 114, 128;
+  /* softer gray for secondary text */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --foreground-rgb: 240, 240, 245;
+    /* light gray text */
+    --background-start-rgb: 10, 10, 20;
+    /* deep dark background */
+    --background-end-rgb: 30, 30, 50;
+    /* subtle gradient for depth */
+    --accent-rgb: 96, 165, 250;
+    /* slightly brighter blue for contrast */
+    --muted-rgb: 148, 163, 184;
+    /* softer muted text */
   }
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: linear-gradient(to bottom,
+      rgb(var(--background-start-rgb)),
+      rgb(var(--background-end-rgb)));
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.6;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+a {
+  color: rgb(var(--accent-rgb));
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: rgb(calc(var(--accent-rgb) + 30));
+}
+
+p,
+li {
+  color: rgb(var(--foreground-rgb));
+}
+
+small,
+.muted {
+  color: rgb(var(--muted-rgb));
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Optional utility for gradient text */
+  .gradient-text {
+    background: linear-gradient(90deg, rgb(var(--accent-rgb)), rgb(var(--foreground-rgb)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
