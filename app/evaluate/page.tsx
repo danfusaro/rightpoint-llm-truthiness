@@ -196,11 +196,11 @@ export default function EvaluatePage() {
         {inputMode === 'url' && source && (
           <div>
             <label className="block font-medium mb-2 text-gray-800 dark:text-gray-200">Fetched Content Preview</label>
-            <div className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 max-h-64 overflow-auto transition-colors duration-200">
-              <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-gray-100">{source.substring(0, 500)}...</pre>
+            <div className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 max-h-96 overflow-auto transition-colors duration-200">
+              <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-gray-100">{source}</pre>
             </div>
             <p className="text-sm text-muted mt-1">
-              This is a preview of the content fetched from the URL (truncated for readability).
+              Full content extracted from the URL. Please review for accuracy before submitting.
             </p>
           </div>
         )}
