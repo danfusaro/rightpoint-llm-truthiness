@@ -3,27 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { Evaluation, ComparisonResult, TruthinessWeights } from '@/interfaces';
 
-// Import types
-interface ComparisonResult {
-    differences: string[];
-    alignmentScore: number;
-    admitsError: boolean;
-    truthinessScore: number;
-}
-
-interface Evaluation {
-    id: string;
-    question: string;
-    source: string;
-    responseWithoutSource: string;
-    responseWithSource: string;
-    comparisonResults: ComparisonResult;
-    timestamp: string;
-    inputMode?: 'text' | 'url';
-    sourceUrl?: string;
-    captureDate?: string;
-}
+// Import types from interfaces directory
 
 export default function ResultsPage() {
     const params = useParams();
@@ -186,22 +168,46 @@ export default function ResultsPage() {
                 )}
 
                 {evaluation.comparisonResults.truthinessScore >= 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-blue-50 p-3 rounded">
-                            <p className="text-sm font-medium text-gray-500">Alignment Score</p>
-                            <p className="text-2xl font-bold">{evaluation.comparisonResults.alignmentScore}%</p>
-                        </div>
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div className="bg-blue-50 p-3 rounded">
+                                <p className="text-sm font-medium text-gray-500">Alignment Score</p>
+                                <p className="text-2xl font-bold">{evaluation.comparisonResults.alignmentScore}%</p>
+                            </div>
 
-                        <div className="bg-blue-50 p-3 rounded">
-                            <p className="text-sm font-medium text-gray-500">Key Differences</p>
-                            <p className="text-2xl font-bold">{evaluation.comparisonResults.differences.length}</p>
-                        </div>
+                            <div className="bg-blue-50 p-3 rounded">
+                                <p className="text-sm font-medium text-gray-500">Key Differences</p>
+                                <p className="text-2xl font-bold">{evaluation.comparisonResults.differences.length}</p>
+                            </div>
 
-                        <div className="bg-blue-50 p-3 rounded">
-                            <p className="text-sm font-medium text-gray-500">Admits Error</p>
-                            <p className="text-2xl font-bold">{evaluation.comparisonResults.admitsError ? 'Yes' : 'No'}</p>
+                            <div className="bg-blue-50 p-3 rounded">
+                                <p className="text-sm font-medium text-gray-500">Admits Error</p>
+                                <p className="text-2xl font-bold">{evaluation.comparisonResults.admitsError ? 'Yes' : 'No'}</p>
+                            </div>
                         </div>
-                    </div>
+                        
+                        {evaluation.truthinessWeights && (
+                            <div className="bg-gray-50 p-3 rounded border border-gray-200 mt-4">
+                                <h3 className="text-sm font-semibold mb-2">Custom Calculation Weights Used</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                                    <div>
+                                        <span className="font-medium">Difference Penalty:</span> -{evaluation.truthinessWeights.differenceWeight} points per difference
+                                    </div>
+                                    <div>
+                                        <span className="font-medium">Alignment Weight:</span> {evaluation.truthinessWeights.alignmentWeight}% of alignment score
+                                    </div>
+                                    <div>
+                                        <span className="font-medium">Error Admission Bonus:</span> +{evaluation.truthinessWeights.errorAdmissionBonus} points
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Formula: 100 - (contradictions × {evaluation.truthinessWeights.differenceWeight}) + 
+                                    (alignment score × {evaluation.truthinessWeights.alignmentWeight/100}) + 
+                                    ({evaluation.truthinessWeights.errorAdmissionBonus} if errors admitted)
+                                </p>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 

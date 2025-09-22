@@ -1,27 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { ComparisonResult, Evaluation, TruthinessWeights } from '@/interfaces';
 
-// Define types for our data structure
-export interface Evaluation {
-  id: string;
-  question: string;
-  source: string;
-  responseWithoutSource: string;
-  responseWithSource: string;
-  comparisonResults: ComparisonResult;
-  timestamp: string;
-  inputMode?: 'text' | 'url';
-  sourceUrl?: string;
-  captureDate?: string;
-}
-
-export interface ComparisonResult {
-  differences: string[];
-  alignmentScore: number;
-  admitsError: boolean;
-  truthinessScore: number;
-}
+// Export types from interfaces file
+export type { Evaluation, ComparisonResult, TruthinessWeights };
 
 // In-memory storage for serverless environments
 let inMemoryEvaluations: Evaluation[] = [];
@@ -84,7 +67,8 @@ export function saveNewEvaluation(
   source: string,
   inputMode: 'text' | 'url' = 'text',
   sourceUrl?: string,
-  captureDate?: string
+  captureDate?: string,
+  truthinessWeights?: TruthinessWeights
 ): string {
   ensureDataDirExists();
   
@@ -105,7 +89,8 @@ export function saveNewEvaluation(
     timestamp: new Date().toISOString(),
     inputMode,
     sourceUrl,
-    captureDate
+    captureDate,
+    truthinessWeights
   };
   
   evaluations.push(newEvaluation);

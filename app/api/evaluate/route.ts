@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { saveNewEvaluation, updateEvaluation } from "@/lib/db";
 import { queryLLM, getOfflineResponse } from "@/utils/openai";
+import { TruthinessWeights, EvaluationRequest } from "@/interfaces";
 
 // Function to compare responses and generate comparison metrics
 function compareResponses(
   responseWithoutSource: string,
   responseWithSource: string,
   source: string,
-  usedFallback = false
+  usedFallback = false,
+  weights?: TruthinessWeights
 ) {
   // Extract key differences between responses
   const differences = extractDifferences(
@@ -29,7 +31,8 @@ function compareResponses(
     differences.length,
     alignmentScore,
     admitsError,
-    usedFallback
+    usedFallback,
+    weights
   );
 
   return {
@@ -126,20 +129,28 @@ function calculateTruthinessScore(
   differenceCount: number,
   alignmentScore: number,
   admitsError: boolean,
-  usedFallback = false
+  usedFallback = false,
+  weights?: TruthinessWeights
 ) {
-  // Simple scoring formula:
+  // Default weights if not provided
+  const {
+    differenceWeight = 10,
+    alignmentWeight = 50,
+    errorAdmissionBonus = 20
+  } = weights || {};
+
+  // Scoring formula with customizable weights:
   // - Start with 100 points
-  // - Subtract 10 points for each difference (up to 50 points)
-  // - Add up to 50 points based on alignment score
-  // - Add 20 points if the model admits error when correcting information
+  // - Subtract differenceWeight points for each difference (up to 50 points)
+  // - Add a percentage of alignment score based on alignmentWeight
+  // - Add errorAdmissionBonus points if the model admits errors
 
   let score = 100;
-  score -= Math.min(50, differenceCount * 10);
-  score += alignmentScore / 2; // Up to 50 points from alignment
+  score -= Math.min(50, differenceCount * differenceWeight); // Cap at -50 points
+  score += (alignmentScore * alignmentWeight) / 100; // Apply percentage of alignment score
 
   if (admitsError) {
-    score += 20;
+    score += errorAdmissionBonus;
   }
 
   // If we used fallback responses, indicate this in the score
@@ -155,8 +166,8 @@ function calculateTruthinessScore(
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { question, source, inputMode, sourceUrl, captureDate } = body;
+    const body = await request.json() as EvaluationRequest;
+    const { question, source, inputMode, sourceUrl, captureDate, truthinessWeights } = body;
 
     // Input validation
     if (!question || !source) {
@@ -180,7 +191,8 @@ export async function POST(request: Request) {
       source, 
       inputMode as 'text' | 'url', 
       sourceUrl, 
-      captureDate
+      captureDate,
+      truthinessWeights
     );
 
     // In a production environment, you would likely queue these tasks
@@ -217,7 +229,8 @@ export async function POST(request: Request) {
       responseWithoutSource,
       responseWithSource,
       source,
-      usedFallback // Pass the fallback flag to adjust scoring if needed
+      usedFallback, // Pass the fallback flag to adjust scoring if needed
+      truthinessWeights // Pass the custom weights for truthiness calculation
     );
 
     // Update the evaluation with responses and results

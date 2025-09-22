@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import TruthinessExplanation, { TruthinessWeights } from '@/components/TruthinessExplanation';
 
 export default function EvaluatePage() {
   const router = useRouter();
@@ -13,6 +14,12 @@ export default function EvaluatePage() {
   const [url, setUrl] = useState('');
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [captureDate, setCaptureDate] = useState<string | null>(null);
+  const [showTruthinessExplanation, setShowTruthinessExplanation] = useState(false);
+  const [truthinessWeights, setTruthinessWeights] = useState<TruthinessWeights>({
+    differenceWeight: 10,
+    alignmentWeight: 50,
+    errorAdmissionBonus: 20
+  });
 
   // Function to validate and fetch URL content
   const validateAndFetchUrl = async () => {
@@ -102,7 +109,8 @@ export default function EvaluatePage() {
           source, 
           inputMode,
           sourceUrl: inputMode === 'url' ? url : undefined,
-          captureDate: captureDate || undefined
+          captureDate: captureDate || undefined,
+          truthinessWeights
         }),
       });
       
@@ -255,7 +263,31 @@ export default function EvaluatePage() {
           </div>
         )}
         
-        <div className="flex justify-end">
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => setShowTruthinessExplanation(!showTruthinessExplanation)}
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+          >
+            <svg 
+              className={`w-4 h-4 mr-1 transition-transform ${showTruthinessExplanation ? 'rotate-90' : ''}`} 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+            </svg>
+            {showTruthinessExplanation ? 'Hide truthiness explanation' : 'Understand & adjust truthiness calculation'}
+          </button>
+
+          <TruthinessExplanation
+            isOpen={showTruthinessExplanation}
+            defaultWeights={truthinessWeights}
+            onWeightsChange={setTruthinessWeights}
+          />
+        </div>
+
+        <div className="flex justify-end mt-6">
           <button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
