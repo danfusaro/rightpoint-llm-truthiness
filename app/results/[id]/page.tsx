@@ -20,6 +20,9 @@ interface Evaluation {
     responseWithSource: string;
     comparisonResults: ComparisonResult;
     timestamp: string;
+    inputMode?: 'text' | 'url';
+    sourceUrl?: string;
+    captureDate?: string;
 }
 
 export default function ResultsPage() {
@@ -96,6 +99,22 @@ export default function ResultsPage() {
 
             <div className="mb-8">
                 <h2 className="text-2xl font-semibold mb-2">Authoritative Source</h2>
+                {evaluation.inputMode === 'url' && evaluation.sourceUrl && (
+                    <div className="bg-blue-50 p-2 mb-2 rounded-lg border border-blue-200 flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div className="flex-grow">
+                            <span className="font-semibold">Source URL:</span> 
+                            <a href={evaluation.sourceUrl} target="_blank" rel="noopener noreferrer" 
+                               className="text-blue-600 hover:underline break-all">
+                                {evaluation.sourceUrl}
+                            </a>
+                        </div>
+                        {evaluation.captureDate && (
+                            <div className="mt-1 md:mt-0 text-sm text-gray-600">
+                                Content captured: {new Date(evaluation.captureDate).toLocaleString()}
+                            </div>
+                        )}
+                    </div>
+                )}
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-60 overflow-y-auto">
                     <pre className="whitespace-pre-wrap font-sans">{evaluation.source}</pre>
                 </div>

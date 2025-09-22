@@ -156,7 +156,7 @@ function calculateTruthinessScore(
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { question, source } = body;
+    const { question, source, inputMode, sourceUrl, captureDate } = body;
 
     // Input validation
     if (!question || !source) {
@@ -166,8 +166,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create a new evaluation entry
-    const evaluationId = saveNewEvaluation(question, source);
+    // Additional validation for URL mode
+    if (inputMode === 'url' && !sourceUrl) {
+      return NextResponse.json(
+        { error: "URL is required when using URL input mode" },
+        { status: 400 }
+      );
+    }
+
+    // Create a new evaluation entry with the appropriate mode and URL info if applicable
+    const evaluationId = saveNewEvaluation(
+      question, 
+      source, 
+      inputMode as 'text' | 'url', 
+      sourceUrl, 
+      captureDate
+    );
 
     // In a production environment, you would likely queue these tasks
     // and process them asynchronously. For this POC, we'll do it in the request.

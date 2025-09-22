@@ -11,6 +11,9 @@ export interface Evaluation {
   responseWithSource: string;
   comparisonResults: ComparisonResult;
   timestamp: string;
+  inputMode?: 'text' | 'url';
+  sourceUrl?: string;
+  captureDate?: string;
 }
 
 export interface ComparisonResult {
@@ -78,7 +81,10 @@ export function getEvaluationById(id: string): Evaluation | null {
 // Save a new evaluation (without comparison results initially)
 export function saveNewEvaluation(
   question: string,
-  source: string
+  source: string,
+  inputMode: 'text' | 'url' = 'text',
+  sourceUrl?: string,
+  captureDate?: string
 ): string {
   ensureDataDirExists();
   
@@ -96,7 +102,10 @@ export function saveNewEvaluation(
       admitsError: false,
       truthinessScore: 0
     },
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    inputMode,
+    sourceUrl,
+    captureDate
   };
   
   evaluations.push(newEvaluation);
